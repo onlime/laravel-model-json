@@ -5,6 +5,7 @@ namespace Vildanbina\ModelJson\Services;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Vildanbina\ModelJson\Traits\ColumnManipulator;
+use Vildanbina\ModelJson\Traits\DataManipulator;
 use Vildanbina\ModelJson\Traits\EachClosure;
 use Vildanbina\ModelJson\Traits\HasDestinationPath;
 use Vildanbina\ModelJson\Traits\HasFilename;
@@ -22,6 +23,7 @@ class ExportService extends JsonService
     use HasFilename;
     use HasDestinationPath;
     use ColumnManipulator;
+    use DataManipulator;
     use HasRelationships;
     use EachClosure;
 
@@ -60,6 +62,10 @@ class ExportService extends JsonService
             if (is_callable($this->onEach)) {
                 value($this->onEach, $value);
             }
+
+            collect($this->forgetKeys)->each(function (string|array|int $key) use (&$value) {
+                data_forget($value, $key);
+            });
 
             $data[] = $value;
         });
